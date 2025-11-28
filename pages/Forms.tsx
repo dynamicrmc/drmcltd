@@ -25,7 +25,13 @@ const FormPage: React.FC<{ type: FormType }> = ({ type }) => {
     serviceInterest: preSelectedService,
     date: '',
     time: '',
-    file: null as File | null
+    file: null as File | null,
+    stateOfResidence: '',
+    areaOfJobInterest: '',
+    areaOfConsultancy: '',
+    officeLocation: '',
+    desiredTrainingAreas: '',
+    addressLocation: ''
   });
 
   const [fileError, setFileError] = useState<string>('');
@@ -74,10 +80,24 @@ const FormPage: React.FC<{ type: FormType }> = ({ type }) => {
       data.append('serviceInterest', formData.serviceInterest);
     }
 
+    // Append Job Application specific fields
+    if (type === FormType.JOB) {
+      data.append('stateOfResidence', formData.stateOfResidence);
+      data.append('areaOfJobInterest', formData.areaOfJobInterest);
+    }
+
     // Append Consultancy specific fields
     if (type === FormType.CONSULTANCY) {
+      data.append('areaOfConsultancy', formData.areaOfConsultancy);
+      data.append('officeLocation', formData.officeLocation);
       data.append('Preferred Date', formData.date);
       data.append('Preferred Time', formData.time);
+    }
+
+    // Append Training specific fields
+    if (type === FormType.TRAINING) {
+      data.append('desiredTrainingAreas', formData.desiredTrainingAreas);
+      data.append('addressLocation', formData.addressLocation);
     }
 
     // Append File if exists (Job Application)
@@ -151,7 +171,7 @@ const FormPage: React.FC<{ type: FormType }> = ({ type }) => {
             {/* Standard Fields */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name <span className="text-red-600">*</span></label>
                 <input
                   type="text"
                   name="fullName"
@@ -165,7 +185,7 @@ const FormPage: React.FC<{ type: FormType }> = ({ type }) => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Address <span className="text-red-600">*</span></label>
                   <input
                     type="email"
                     name="email"
@@ -177,7 +197,7 @@ const FormPage: React.FC<{ type: FormType }> = ({ type }) => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number <span className="text-red-600">*</span></label>
                   <input
                     type="tel"
                     name="phone"
@@ -211,68 +231,155 @@ const FormPage: React.FC<{ type: FormType }> = ({ type }) => {
 
             {/* Conditional Consultancy Date/Time */}
             {type === FormType.CONSULTANCY && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-100">
-                <div>
-                   <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                     <Calendar size={16} className="text-primary"/> Preferred Date
-                   </label>
-                   <input 
-                      type="date"
-                      name="date"
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Area of Consultancy Needed <span className="text-red-600">*</span></label>
+                    <input
+                      type="text"
+                      name="areaOfConsultancy"
                       required
-                      value={formData.date}
+                      value={formData.areaOfConsultancy}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                   />
-                </div>
-                <div>
-                   <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
-                     <Clock size={16} className="text-primary"/> Preferred Time
-                   </label>
-                   <input 
-                      type="time"
-                      name="time"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                      placeholder="e.g., HR Policy, Recruitment Strategy"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Office Location/Address <span className="text-red-600">*</span></label>
+                    <input
+                      type="text"
+                      name="officeLocation"
                       required
-                      value={formData.time}
+                      value={formData.officeLocation}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                   />
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                      placeholder="Your office address"
+                    />
+                  </div>
                 </div>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                  <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                       <Calendar size={16} className="text-primary"/> Preferred Date <span className="text-red-600">*</span>
+                     </label>
+                     <input 
+                        type="date"
+                        name="date"
+                        required
+                        value={formData.date}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                     />
+                  </div>
+                  <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                       <Clock size={16} className="text-primary"/> Preferred Time <span className="text-red-600">*</span>
+                     </label>
+                     <input 
+                        type="time"
+                        name="time"
+                        required
+                        value={formData.time}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                     />
+                  </div>
+                </div>
+              </>
             )}
 
             {/* Conditional File Upload */}
             {type === FormType.JOB && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Upload CV (Optional)</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:bg-gray-50 transition-colors text-center cursor-pointer relative">
-                  <input
-                    type="file"
-                    name="file"
-                    accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    onChange={handleFileChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  <div className="flex flex-col items-center justify-center pointer-events-none">
-                     <Upload size={32} className="text-gray-400 mb-2" />
-                     {formData.file ? (
-                        <p className="text-sm font-medium text-green-600">{formData.file.name}</p>
-                     ) : (
-                        <>
-                          <p className="text-sm text-gray-600 font-medium">Click to upload Word Document</p>
-                          <p className="text-xs text-gray-400 mt-1">DOC or DOCX only (Max 2MB)</p>
-                        </>
-                     )}
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">State of Residence <span className="text-red-600">*</span></label>
+                    <input
+                      type="text"
+                      name="stateOfResidence"
+                      required
+                      value={formData.stateOfResidence}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                      placeholder="e.g., Lagos, Abuja"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Area of Job Interest <span className="text-red-600">*</span></label>
+                    <input
+                      type="text"
+                      name="areaOfJobInterest"
+                      required
+                      value={formData.areaOfJobInterest}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                      placeholder="e.g., Recruitment, HR Management"
+                    />
                   </div>
                 </div>
-                {fileError && (
-                  <p className="text-red-500 text-xs mt-1">{fileError}</p>
-                )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Upload CV <span className="text-red-600">*</span></label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:bg-gray-50 transition-colors text-center cursor-pointer relative">
+                    <input
+                      type="file"
+                      name="file"
+                      accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      onChange={handleFileChange}
+                      required
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <div className="flex flex-col items-center justify-center pointer-events-none">
+                       <Upload size={32} className="text-gray-400 mb-2" />
+                       {formData.file ? (
+                          <p className="text-sm font-medium text-green-600">{formData.file.name}</p>
+                       ) : (
+                          <>
+                            <p className="text-sm text-gray-600 font-medium">Click to upload Word Document</p>
+                            <p className="text-xs text-gray-400 mt-1">DOC or DOCX only (Max 2MB)</p>
+                          </>
+                       )}
+                    </div>
+                  </div>
+                  {fileError && (
+                    <p className="text-red-500 text-xs mt-1">{fileError}</p>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Conditional Training Fields */}
+            {type === FormType.TRAINING && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Desired Training Areas <span className="text-red-600">*</span></label>
+                  <input
+                    type="text"
+                    name="desiredTrainingAreas"
+                    required
+                    value={formData.desiredTrainingAreas}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                    placeholder="e.g., Leadership, Communication Skills"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Address/Location <span className="text-red-600">*</span></label>
+                  <input
+                    type="text"
+                    name="addressLocation"
+                    required
+                    value={formData.addressLocation}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                    placeholder="Your address/location"
+                  />
+                </div>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Additional Message</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Additional Message <span className="text-red-600">*</span></label>
               <textarea
                 name="message"
                 rows={4}
